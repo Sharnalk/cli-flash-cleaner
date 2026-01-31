@@ -12,3 +12,7 @@ walkdir = "2.5.0"
 
 [dev-dependencies]
 tempfile = "3"
+
+[[bin]]
+name = "fclr"
+path = "src/main.rs"
