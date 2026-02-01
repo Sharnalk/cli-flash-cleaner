@@ -25,23 +25,22 @@ fn filter_args(args: &Args, entry: &DirEntry) -> bool {
             .extension
             .contains(&get_extension_from_filename(entry.file_name()));
 
-    let filename_to_check = if args.ignore_case {
-        entry.file_name().to_string_lossy().to_lowercase()
-    } else {
-        entry.file_name().to_string_lossy().to_string()
-    };
+    let mut name_entry = entry
+        .path()
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_string();
 
-    let name_contains_lowered = args.name_contains.as_deref().map(|s| {
+    let name_matches = if let Some(mut name_arg) = args.name_contains.as_deref().map(str::to_owned)
+    {
         if args.ignore_case {
-            s.to_lowercase()
-        } else {
-            s.to_owned()
+            name_entry = name_entry.to_lowercase();
+            name_arg = name_arg.to_lowercase();
         }
-    });
-
-    let name_matches = match &name_contains_lowered {
-        Some(motif) => filename_to_check.contains(motif),
-        None => true,
+        name_entry.contains(&name_arg)
+    } else {
+        true
     };
 
     name_matches && extensions_matches
